@@ -1,17 +1,22 @@
 import { useEffect, useState } from 'react'
-import { useNavigate } from 'react-router-dom'
+import { useNavigate, useLocation } from 'react-router-dom'
 import { useAuth } from '../../context/AuthContext'
 import { supabase } from '../../config/supabase'
 import BottomNav from '../../components/BottomNav'
-import { calcAge, ageBadge, formatDA } from '../../lib/utils'
+import Onboarding from '../../components/Onboarding'
+import SuccessOverlay from '../../components/SuccessOverlay'
+import { calcAge, ageBadge, formatDA, formatMillions } from '../../lib/utils'
 import { autoPublierSiEcheance, getSerieEnPlace } from '../../lib/publication'
 import { waLink, msgPartageAnnonce } from '../../lib/whatsapp'
 
 export default function AccueilEleveur() {
   const { profile, logout }  = useAuth()
   const navigate             = useNavigate()
+  const location             = useLocation()
+  const [showPubliee, setShowPubliee] = useState(!!location.state?.publiee)
   const [annonce,   setAnnonce]   = useState(null)
   const [serie,     setSerie]     = useState(null)
+  const [saisieFaite, setSaisieFaite] = useState(true)
   const [nbOffres,  setNbOffres]  = useState(0)
   const [cours,     setCours]     = useState(null)
   const [loading,   setLoading]   = useState(true)
@@ -119,7 +124,54 @@ export default function AccueilEleveur() {
     setCours(coursRes.data || null)
     setTxEnCours(txRes.data || [])
     setSerie(serieData)
+
+    // La saisie du jour est-elle faite ? (pilote « l'action du jour »)
+    if (serieData) {
+      const { data: jourData } = await supabase
+        .from('bande_jours')
+        .select('id')
+        .eq('bande_id', serieData.id)
+        .eq('date_jour', today)
+        .limit(1)
+        .maybeSingle()
+      setSaisieFaite(!!jourData)
+    }
+
     setLoading(false)
+  }
+
+  // L'ACTION DU JOUR : une seule consigne, un seul gros bouton.
+  // Priorité : paiement à confirmer > offres reçues > vente prête > saisie du jour
+  const actionDuJour = () => {
+    const txPesee = txEnCours.find(t2 => t2.statut_transaction === 'pesee')
+    if (txPesee) return {
+      emoji: '💵',
+      fr: 'Confirme la réception du paiement', ar: 'أكّد استلام الخلاص',
+      btnFr: 'Confirmer', btnAr: 'أكّد ضرك',
+      action: () => navigate('/transaction/' + txPesee.id),
+    }
+    if (nbOffres > 0) return {
+      emoji: '💰',
+      fr: `${nbOffres} offre(s) t'attendent`, ar: `${nbOffres} عروض راهي تستنى فيك`,
+      btnFr: 'Voir les offres', btnAr: 'شوف العروض',
+      action: () => navigate('/eleveur/offres'),
+    }
+    if (!annonce && serie) {
+      const ageSerie = Math.floor((Date.now() - new Date(serie.date_mise_en_place)) / 86400000)
+      if (ageSerie >= (serie.delai_publication_jours || 35)) return {
+        emoji: '📢',
+        fr: 'Ta série est prête à vendre', ar: 'السيري جاهزة للبيع',
+        btnFr: 'Mettre en vente', btnAr: 'بيع ضرك',
+        action: () => navigate('/eleveur/publier'),
+      }
+    }
+    if (serie && !saisieFaite) return {
+      emoji: '📊',
+      fr: 'Saisis ta journée (morts, sacs, gaz)', ar: 'سجّل يومك (النفوق، الأكياس، الغاز)',
+      btnFr: 'Saisir maintenant', btnAr: 'سجّل ضرك',
+      action: () => navigate(`/eleveur/serie/${serie.id}/jour`),
+    }
+    return null
   }
 
   const handleSuspendre = async () => {
@@ -164,8 +216,25 @@ export default function AccueilEleveur() {
   const badge      = ageActuel ? ageBadge(ageActuel) : null
   const valeur     = annonce && cours ? annonce.nb_sujets_restants * annonce.poids_moyen * cours.prix_moyen : null
 
+  const action = actionDuJour()
+
   return (
     <div className="min-h-screen pb-24" style={{ backgroundColor: '#FFF7ED' }}>
+
+      {/* Premiers pas : 3 écrans, une seule fois */}
+      <Onboarding role="eleveur" lang={lang} />
+
+      {/* Confirmation : annonce publiée */}
+      {showPubliee && (
+        <SuccessOverlay
+          titre={lang === 'fr' ? 'Ton annonce est en ligne !' : 'إعلانك راه مع الناس!'}
+          sousTitre={lang === 'fr'
+            ? 'Les acheteurs vont faire leurs offres. Tu seras prévenu à chaque offre reçue.'
+            : 'الشّرايين غادي يقدّمو عروضهم. نعلموك مع كل عرض جديد.'}
+          bouton={lang === 'fr' ? 'D\'accord' : 'مفهوم'}
+          onClose={() => setShowPubliee(false)}
+        />
+      )}
 
       {/* Header */}
       <div className="text-white px-4 pt-10 pb-6" style={{ backgroundColor: '#E85C0D' }}>
@@ -184,6 +253,19 @@ export default function AccueilEleveur() {
       </div>
 
       <div className="px-4 -mt-3 space-y-4">
+
+        {/* ⭐ L'ACTION DU JOUR — une seule consigne, un seul gros bouton */}
+        {action && (
+          <div className="card border-2 text-center py-6" style={{ borderColor: '#E85C0D', backgroundColor: '#FFF7ED' }}>
+            <div className="text-5xl mb-2">{action.emoji}</div>
+            <p className="font-bold text-gray-800 text-lg mb-4">
+              {lang === 'fr' ? action.fr : action.ar}
+            </p>
+            <button onClick={action.action} className="btn-primary text-xl py-5">
+              {lang === 'fr' ? action.btnFr : action.btnAr}
+            </button>
+          </div>
+        )}
 
         {/* Transactions en cours (3 max en parallèle) */}
         {txEnCours.map(txc => (
@@ -307,6 +389,9 @@ export default function AccueilEleveur() {
               <div className="bg-green-50 rounded-xl p-3 mb-4 text-center">
                 <p className="text-xs text-gray-500 mb-1">{tx.valeurEstim}</p>
                 <p className="text-xl font-bold" style={{ color: '#166534' }}>{formatDA(valeur)}</p>
+                {formatMillions(valeur, lang) && (
+                  <p className="text-sm font-bold text-green-600 mt-0.5">≈ {formatMillions(valeur, lang)}</p>
+                )}
               </div>
             )}
 

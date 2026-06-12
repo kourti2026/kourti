@@ -2,7 +2,20 @@ import { useEffect, useState } from 'react'
 import { useNavigate, useParams } from 'react-router-dom'
 import { useAuth } from '../../context/AuthContext'
 import { supabase } from '../../config/supabase'
-import { offreIndicateur } from '../../lib/utils'
+import { offreIndicateur, messageErreur } from '../../lib/utils'
+
+// Créneaux proposés en un tap (le sélecteur date-heure est la saisie
+// la plus difficile de l'app pour un public peu habitué)
+const creneauDate = (joursPlus, heure) => {
+  const d = new Date()
+  d.setDate(d.getDate() + joursPlus)
+  d.setHours(heure, 0, 0, 0)
+  return d
+}
+const fmtLocal = (d) => {
+  const p = n => String(n).padStart(2, '0')
+  return `${d.getFullYear()}-${p(d.getMonth() + 1)}-${p(d.getDate())}T${p(d.getHours())}:${p(d.getMinutes())}`
+}
 
 export default function FormulaireOffre() {
   const { id }    = useParams()
@@ -144,15 +157,20 @@ export default function FormulaireOffre() {
       setQuantite(String(offre.quantite))
       setModePaie(offre.type_paiement)
       setDatePaie(offre.date_paiement_convenue || '')
-      // datetime-local attend "YYYY-MM-DDTHH:mm" en heure locale
       if (offre.date_chargement_prevue) {
-        const d = new Date(offre.date_chargement_prevue)
-        d.setMinutes(d.getMinutes() - d.getTimezoneOffset())
-        setCreneau(d.toISOString().slice(0, 16))
+        setCreneau(fmtLocal(new Date(offre.date_chargement_prevue)))
       }
+    } else {
+      // Pré-remplissage : l'utilisateur valide plus qu'il ne saisit
+      if (topAutre?.prix_kg) setPrix(String(Math.round(topAutre.prix_kg) + 5))
+      setCreneau(fmtLocal(creneauDate(1, 8))) // demain matin 8 h par défaut
     }
 
     setLoading(false)
+  }
+
+  const ajusterPrix = (delta) => {
+    setPrix(p => String(Math.max(0, (parseFloat(p) || 0) + delta)))
   }
 
   const handleSubmit = async () => {
@@ -248,7 +266,7 @@ export default function FormulaireOffre() {
       navigate(`/acheteur/lot/${id}`, { state: { succes: true } })
     } catch (err) {
       console.error('Erreur offre:', err)
-      setError(err?.message || 'Erreur lors de l\'envoi. Réessayez.')
+      setError(messageErreur(err, lang))
     } finally {
       setSubmitting(false)
     }
@@ -402,22 +420,32 @@ export default function FormulaireOffre() {
           </div>
         </div>
 
-        {/* Saisie prix */}
+        {/* Saisie prix — paliers ±5 pour éviter le clavier */}
         <div className="card">
           <p className="font-semibold text-gray-700 mb-3">{tx.prix}</p>
-          <div className="relative">
+          <div className="flex items-center gap-3">
+            <button
+              onClick={() => ajusterPrix(-5)}
+              className="w-14 h-14 rounded-2xl text-lg font-bold border-2 border-gray-200 text-gray-600 active:scale-95 shrink-0"
+            >
+              −5
+            </button>
             <input
               type="number"
               inputMode="numeric"
               placeholder={tx.prixPlaceh}
               value={prix}
               onChange={e => setPrix(e.target.value)}
-              className="input-field text-center text-3xl font-bold pr-16"
+              className="input-field text-center text-3xl font-bold flex-1 min-w-0"
             />
-            <span className="absolute right-4 top-1/2 -translate-y-1/2 text-gray-400 font-medium">
-              DA/kg
-            </span>
+            <button
+              onClick={() => ajusterPrix(5)}
+              className="w-14 h-14 rounded-2xl text-lg font-bold text-white active:scale-95 shrink-0 bg-kourti-orange"
+            >
+              +5
+            </button>
           </div>
+          <p className="text-xs text-gray-400 text-center mt-2">DA/kg</p>
 
           {/* Indicateur marché */}
           {indStyle && (
@@ -472,9 +500,33 @@ export default function FormulaireOffre() {
           )}
         </div>
 
-        {/* Créneau de chargement au hangar */}
+        {/* Créneau de chargement — pastilles en un tap, sélecteur en secours */}
         <div className="card">
           <p className="font-semibold text-gray-700 mb-3">🚛 {tx.creneau}</p>
+          <div className="grid grid-cols-3 gap-2 mb-3">
+            {[
+              { j: 1, h: 8,  fr: 'Demain matin',  ar: 'غدوة الصباح' },
+              { j: 1, h: 14, fr: 'Demain a.-m.',  ar: 'غدوة العشية' },
+              { j: 2, h: 8,  fr: 'Après-demain',  ar: 'بعد غدوة' },
+            ].map(opt => {
+              const val = fmtLocal(creneauDate(opt.j, opt.h))
+              const actif = creneau === val
+              return (
+                <button
+                  key={`${opt.j}-${opt.h}`}
+                  onClick={() => setCreneau(val)}
+                  className={`py-3 rounded-xl text-sm font-bold border-2 transition-colors ${
+                    actif
+                      ? 'border-orange-400 bg-orange-50 text-orange-600'
+                      : 'border-gray-200 text-gray-600'
+                  }`}
+                >
+                  {lang === 'fr' ? opt.fr : opt.ar}
+                  <span className="block text-xs font-normal mt-0.5">{opt.h}:00</span>
+                </button>
+              )
+            })}
+          </div>
           <input
             type="datetime-local"
             value={creneau}

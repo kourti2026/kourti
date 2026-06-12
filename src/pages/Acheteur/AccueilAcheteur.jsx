@@ -3,6 +3,7 @@ import { useNavigate } from 'react-router-dom'
 import { useAuth } from '../../context/AuthContext'
 import { supabase } from '../../config/supabase'
 import BottomNav from '../../components/BottomNav'
+import Onboarding from '../../components/Onboarding'
 import { calcAge, ageBadge } from '../../lib/utils'
 import { wilayas } from '../../data/wilayas'
 import { getMeilleuresOffres, expirerOffres } from '../../lib/publication'
@@ -159,6 +160,9 @@ export default function AccueilAcheteur() {
 
   return (
     <div className="min-h-screen bg-kourti-orange-bg pb-24">
+      {/* Premiers pas : 3 écrans, une seule fois */}
+      <Onboarding role="acheteur" lang={lang} />
+
       {/* Header */}
       <div className="bg-kourti-orange text-white px-4 pt-10 pb-4">
         <div className="flex items-center justify-between">

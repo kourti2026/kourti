@@ -2,7 +2,7 @@ import { useEffect, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { useAuth } from '../../context/AuthContext'
 import { supabase } from '../../config/supabase'
-import { offreIndicateur, tauxPresence, formatDA, formatDateTime, tempsRestant } from '../../lib/utils'
+import { offreIndicateur, tauxPresence, formatDA, formatDateTime, tempsRestant, lire, messageErreur } from '../../lib/utils'
 import { calcSerie } from '../../lib/serieUtils'
 import { expirerOffres } from '../../lib/publication'
 
@@ -171,9 +171,7 @@ export default function OffresEleveur() {
     setSaving(false)
     setAction(null)
     if (err) {
-      if (err.message?.includes('MAX_TRANSACTIONS')) setError(tx.errMax)
-      else if (err.message?.includes('STOCK_EPUISE')) setError(tx.errStock)
-      else setError(err.message)
+      setError(messageErreur(err, lang))
       return
     }
     navigate(txId ? `/transaction/${txId}` : '/eleveur')
@@ -303,11 +301,27 @@ export default function OffresEleveur() {
                   </div>
                 )}
 
-                {/* Prix + indicateur + expiration */}
+                {/* Prix + lecture vocale + indicateur + expiration */}
                 <div className="flex items-center justify-between mb-3">
-                  <p className="text-3xl font-bold text-kourti-green">
-                    {offre.prix_kg} <span className="text-base font-normal text-gray-500">{tx.da_kg}</span>
-                  </p>
+                  <div className="flex items-center gap-2">
+                    <p className="text-3xl font-bold text-kourti-green">
+                      {offre.prix_kg} <span className="text-base font-normal text-gray-500">{tx.da_kg}</span>
+                    </p>
+                    <button
+                      onClick={() => lire(
+                        lang === 'fr'
+                          ? `Offre de ${offre.prix_kg} dinars le kilo, pour ${offre.quantite} sujets, paiement ${offre.type_paiement === 'cash' ? 'cash' : 'à crédit'}.`
+                            + (offre.date_chargement_prevue ? ` Chargement ${formatDateTime(offre.date_chargement_prevue, 'fr')}.` : '')
+                          : `عرض بـ ${offre.prix_kg} دينار للكيلو، لـ ${offre.quantite} رأس، الخلاص ${offre.type_paiement === 'cash' ? 'نقدا' : 'آجل'}.`
+                            + (offre.date_chargement_prevue ? ` التحميل ${formatDateTime(offre.date_chargement_prevue, 'ar')}.` : ''),
+                        lang
+                      )}
+                      className="w-9 h-9 rounded-full bg-gray-100 text-base"
+                      aria-label="Écouter"
+                    >
+                      🔊
+                    </button>
+                  </div>
                   <div className="flex items-center gap-2">
                     {restant && (
                       <span className="text-xs font-semibold px-2 py-1 rounded-full bg-gray-100 text-gray-500">

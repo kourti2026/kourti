@@ -3,7 +3,7 @@ import { useNavigate } from 'react-router-dom'
 import { useAuth } from '../../context/AuthContext'
 import { supabase } from '../../config/supabase'
 import BottomNav from '../../components/BottomNav'
-import { tempsRestant } from '../../lib/utils'
+import { tempsRestant, messageErreur } from '../../lib/utils'
 import { expirerOffres } from '../../lib/publication'
 
 export default function MesOffresAcheteur() {
@@ -165,7 +165,7 @@ export default function MesOffresAcheteur() {
     setSaving(true)
     const { data: txId, error } = await supabase.rpc('accepter_offre', { p_offre_id: offre.id })
     setSaving(false)
-    if (error) { alert(error.message); return }
+    if (error) { alert(messageErreur(error, lang)); return }
     if (txId) navigate(`/transaction/${txId}`)
     else loadOffres()
   }

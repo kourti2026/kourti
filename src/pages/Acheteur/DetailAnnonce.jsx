@@ -1,17 +1,20 @@
 import { useEffect, useState } from 'react'
-import { useNavigate, useParams } from 'react-router-dom'
+import { useNavigate, useParams, useLocation } from 'react-router-dom'
 import { useAuth } from '../../context/AuthContext'
 import { supabase } from '../../config/supabase'
-import { calcAge, ageBadge, formatDA } from '../../lib/utils'
+import { calcAge, ageBadge, formatDA, lire } from '../../lib/utils'
 import { wilayas } from '../../data/wilayas'
 import { expirerOffres } from '../../lib/publication'
 import { waLink, msgPartageAnnonce } from '../../lib/whatsapp'
+import SuccessOverlay from '../../components/SuccessOverlay'
 
 export default function DetailAnnonce() {
   const { id }    = useParams()
   const navigate  = useNavigate()
+  const location  = useLocation()
   const { profile } = useAuth()
 
+  const [showSucces, setShowSucces] = useState(!!location.state?.succes)
   const [annonce,  setAnnonce]  = useState(null)
   const [eleveur,  setEleveur]  = useState(null)
   const [cours,    setCours]    = useState(null)
@@ -153,12 +156,45 @@ export default function DetailAnnonce() {
   }
   const bElev = badgeEleveur[eleveur?.badge] || badgeEleveur.nouveau
 
+  // Lecture vocale du résumé de l'annonce
+  const lireAnnonce = () => {
+    const meilleurePrix = offres[0]?.prix_kg
+    const texte = lang === 'fr'
+      ? `${annonce.nb_sujets_restants} sujets, ${annonce.poids_moyen} kilos en moyenne, ${ageActuel} jours.`
+        + (meilleurePrix ? ` Meilleure offre actuelle : ${meilleurePrix} dinars le kilo.` : ' Aucune offre pour le moment.')
+        + (annonce.prix_acceptation_auto ? ` Acceptation immédiate à ${annonce.prix_acceptation_auto} dinars.` : '')
+      : `${annonce.nb_sujets_restants} رأس، ${annonce.poids_moyen} كيلو متوسط، ${ageActuel} يوم.`
+        + (meilleurePrix ? ` أفضل عرض حالي ${meilleurePrix} دينار للكيلو.` : ' ما كاش عروض حتى الآن.')
+        + (annonce.prix_acceptation_auto ? ` القبول الفوري بـ ${annonce.prix_acceptation_auto} دينار.` : '')
+    lire(texte, lang)
+  }
+
   return (
     <div className="min-h-screen bg-kourti-orange-bg pb-32">
+
+      {/* Confirmation : offre bien envoyée */}
+      {showSucces && (
+        <SuccessOverlay
+          titre={lang === 'fr' ? 'Ton offre est partie !' : 'عرضك وصل!'}
+          sousTitre={lang === 'fr'
+            ? 'L\'éleveur va répondre. Tu seras prévenu dès qu\'il accepte ou propose un autre prix.'
+            : 'المربي غادي يرد. نعلموك كي يقبل ولا يقترح سعر آخر.'}
+          bouton={lang === 'fr' ? 'D\'accord' : 'مفهوم'}
+          onClose={() => setShowSucces(false)}
+        />
+      )}
+
       {/* Header */}
       <div className="bg-kourti-orange text-white px-4 pt-10 pb-4 flex items-center gap-3">
         <button onClick={() => navigate(-1)} className="text-white text-xl">←</button>
         <h1 className="text-xl font-bold flex-1">{tx.detail}</h1>
+        <button
+          onClick={lireAnnonce}
+          className="text-lg bg-white/20 w-9 h-9 rounded-full"
+          aria-label="Écouter"
+        >
+          🔊
+        </button>
         <a
           href={waLink(null, msgPartageAnnonce(annonce, lang))}
           target="_blank" rel="noreferrer"

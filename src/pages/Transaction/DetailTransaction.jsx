@@ -1,9 +1,10 @@
 import { useEffect, useState } from 'react'
-import { useNavigate, useParams } from 'react-router-dom'
+import { useNavigate, useParams, useLocation } from 'react-router-dom'
 import { useAuth } from '../../context/AuthContext'
 import { supabase } from '../../config/supabase'
-import { formatDA, formatDateTime } from '../../lib/utils'
+import { formatDA, formatDateTime, formatMillions, messageErreur } from '../../lib/utils'
 import { waLink, msgTransaction } from '../../lib/whatsapp'
+import SuccessOverlay from '../../components/SuccessOverlay'
 
 const ETAPES = ['accord', 'chargement', 'pesee', 'cloture']
 const DELAI_NOTE_MS = 48 * 3600 * 1000 // notes modifiables 48 h après clôture
@@ -11,8 +12,10 @@ const DELAI_NOTE_MS = 48 * 3600 * 1000 // notes modifiables 48 h après clôture
 export default function DetailTransaction() {
   const { id }      = useParams()
   const navigate    = useNavigate()
+  const location    = useLocation()
   const { profile } = useAuth()
 
+  const [showAuto,      setShowAuto]      = useState(!!location.state?.autoAcceptee)
   const [tx,            setTx]            = useState(null)
   const [loading,       setLoading]       = useState(true)
   const [saving,        setSaving]        = useState(false)
@@ -287,7 +290,7 @@ export default function DetailTransaction() {
       p_motif:          motif.trim(),
     })
     setSaving(false)
-    if (err) { setError(err.message); return }
+    if (err) { setError(messageErreur(err, lang)); return }
     setShowAnnuler(false)
     loadTx()
   }
@@ -346,6 +349,19 @@ export default function DetailTransaction() {
 
   return (
     <div className="min-h-screen bg-kourti-orange-bg pb-10">
+
+      {/* Confirmation : offre acceptée automatiquement (⚡ seuil atteint) */}
+      {showAuto && (
+        <SuccessOverlay
+          titre={lang === 'fr' ? '⚡ Vente conclue !' : '⚡ الصفقة تمت!'}
+          sousTitre={lang === 'fr'
+            ? 'Ton offre a atteint le prix d\'acceptation immédiate. Viens au hangar au créneau convenu.'
+            : 'عرضك بلغ سعر القبول الفوري. أرواح للهنڨار في الموعد المتفق عليه.'}
+          bouton={lang === 'fr' ? 'Voir la transaction' : 'شوف الصفقة'}
+          onClose={() => setShowAuto(false)}
+        />
+      )}
+
       {/* Header */}
       <div className="bg-kourti-orange text-white px-4 pt-10 pb-4 flex items-center gap-3">
         <button
@@ -564,9 +580,14 @@ export default function DetailTransaction() {
             <div className="text-5xl mb-3">✅</div>
             <p className="font-bold text-green-700 text-xl">{tr.cloture}</p>
             {montantFinal && (
-              <p className="text-kourti-green font-bold text-2xl mt-2">
-                {formatDA(montantFinal)}
-              </p>
+              <>
+                <p className="text-kourti-green font-bold text-2xl mt-2">
+                  {formatDA(montantFinal)}
+                </p>
+                {formatMillions(montantFinal, lang) && (
+                  <p className="text-green-600 font-bold text-lg">≈ {formatMillions(montantFinal, lang)}</p>
+                )}
+              </>
             )}
             <button
               onClick={() => navigate(isEleveur ? '/eleveur' : '/acheteur')}

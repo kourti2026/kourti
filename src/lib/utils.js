@@ -47,6 +47,45 @@ export function tempsRestant(expiresAt, lang = 'ar') {
   return lang === 'fr' ? `${min} min` : `${min} د`
 }
 
+// Montant en "millions" de centimes — l'unité de compte des éleveurs
+// (1 million de centimes = 10 000 DA). Retourne null sous 10 000 DA.
+export function formatMillions(da, lang = 'ar') {
+  if (da == null || da < 10000) return null
+  const m = Math.round(da / 10000)
+  return lang === 'fr' ? `${m.toLocaleString('fr-DZ')} millions` : `${m.toLocaleString('fr-DZ')} مليون`
+}
+
+// Lecture vocale — synthèse intégrée au téléphone, gratuite
+export function lire(texte, lang = 'ar') {
+  try {
+    if (!('speechSynthesis' in window)) return
+    window.speechSynthesis.cancel()
+    const u = new SpeechSynthesisUtterance(texte)
+    u.lang = lang === 'fr' ? 'fr-FR' : 'ar'
+    u.rate = 0.95
+    window.speechSynthesis.speak(u)
+  } catch { /* navigateur sans synthèse vocale */ }
+}
+
+// Messages d'erreur en langage humain (jamais de code technique à l'écran)
+export function messageErreur(err, lang = 'ar') {
+  const msg = err?.message || String(err || '')
+  const fr = lang === 'fr'
+  if (msg.includes('MAX_TRANSACTIONS'))
+    return fr ? 'Vous avez déjà 3 transactions en cours — clôturez-en une d\'abord.' : 'عندك 3 صفقات جارية — سالي وحدة قبل.'
+  if (msg.includes('STOCK_EPUISE'))
+    return fr ? 'Plus de sujets disponibles sur cette annonce.' : 'ما بقاش رؤوس متاحة في هذا الإعلان.'
+  if (msg.includes('OFFRE_DEJA_TRAITEE') || msg.includes('OFFRE_INTROUVABLE'))
+    return fr ? 'Cette offre a déjà été traitée.' : 'هذا العرض تمت معالجته من قبل.'
+  if (msg.includes('ANNULATION_IMPOSSIBLE'))
+    return fr ? 'Cette transaction ne peut plus être annulée.' : 'ما يمكنش تلغي هذه الصفقة الآن.'
+  if (msg.includes('MOTIF_OBLIGATOIRE'))
+    return fr ? 'Indiquez le motif de l\'annulation.' : 'اكتب سبب الإلغاء.'
+  if (msg.includes('Failed to fetch') || msg.includes('NetworkError') || msg.includes('network'))
+    return fr ? 'Pas de connexion internet — réessayez.' : 'ما كاش إنترنت — عاود من بعد.'
+  return fr ? 'Une erreur est survenue. Réessayez.' : 'وقع خطأ. عاود المحاولة.'
+}
+
 // Indicateur offre vs cours
 export function offreIndicateur(prixOffre, coursMin, coursMax) {
   const mid = (coursMin + coursMax) / 2

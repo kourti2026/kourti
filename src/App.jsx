@@ -27,6 +27,7 @@ import ProfilPublic         from './pages/ProfilPublic'
 import Forum                from './pages/Forum'
 import NotifBanner          from './components/NotifBanner'
 import PWAInstallBanner     from './components/PWAInstallBanner'
+import HelpButton           from './components/HelpButton'
 
 // Applique dir + lang sur <html> selon la préférence de l'utilisateur
 function LangDirectionSync() {
@@ -94,6 +95,7 @@ export default function App() {
         <LangDirectionSync />
         <NotifBanner />
         <PWAInstallBanner />
+        <HelpButton />
         <AppRoutes />
       </BrowserRouter>
     </AuthProvider>

@@ -126,7 +126,7 @@ export default function PublierLot() {
         prixAuto: prixAuto ? parseFloat(prixAuto) : null,
       })
       if (deja) setError(tx.dejaActive)
-      else navigate('/eleveur')
+      else navigate('/eleveur', { state: { publiee: true } })
     } catch (err) {
       console.error(err)
       setError(err?.message || 'Erreur lors de la publication. Réessayez.')
