@@ -1,0 +1,85 @@
+// 69 Wilayas d'Algérie — Découpage officiel 2025
+// Format : { code, nom, communes: [] }
+
+export const wilayas = [
+  { code: '01', nom: 'Adrar',           communes: ['Adrar','Aoulef','Timimoun','Reggane'] },
+  { code: '02', nom: 'Chlef',           communes: ['Chlef','Ténès','Ain Merane','Oued Fodda','Chettia'] },
+  { code: '03', nom: 'Laghouat',        communes: ['Laghouat','Aflou','Hassi R\'Mel','Ksar El Hirane'] },
+  { code: '04', nom: 'Oum El Bouaghi',  communes: ['Oum El Bouaghi','Ain Beida','Ain M\'lila','Khenchela'] },
+  { code: '05', nom: 'Batna',           communes: ['Batna','Barika','Ain Touta','Arris','Tazoult'] },
+  { code: '06', nom: 'Béjaïa',          communes: ['Béjaïa','Akbou','El Kseur','Sidi Aïch','Tazmalt','Kherrata','Aokas','Amizour','Tichy'] },
+  { code: '07', nom: 'Biskra',          communes: ['Biskra','Tolga','Ouled Djellal','Sidi Okba','El Kantara'] },
+  { code: '08', nom: 'Béchar',          communes: ['Béchar','Abadla','Beni Abbes','Taghit'] },
+  { code: '09', nom: 'Blida',           communes: ['Blida','Boufarik','Larbaa','Meftah','Beni Tamou','Chebli','Bougara'] },
+  { code: '10', nom: 'Bouira',          communes: ['Bouira','Lakhdaria','Sour El Ghouzlane','Ain Bessem','El Asnam','M\'Chedallah','Kadiria'] },
+  { code: '11', nom: 'Tamanrasset',     communes: ['Tamanrasset','In Salah','In Guezzam'] },
+  { code: '12', nom: 'Tébessa',         communes: ['Tébessa','Bir El Ater','Cheria','El Aouinet'] },
+  { code: '13', nom: 'Tlemcen',         communes: ['Tlemcen','Maghnia','Ghazaouet','Nedroma','Remchi'] },
+  { code: '14', nom: 'Tiaret',          communes: ['Tiaret','Sougueur','Frenda','Ksar Chellala','Mehdia','Rahouia','Zmalet El Emir Abdelkader'] },
+  { code: '15', nom: 'Tizi Ouzou',      communes: ['Tizi Ouzou','Azazga','Draâ Ben Khedda','Boghni','Larbaa Nath Irathen','Ain El Hammam','Ouacifs','Maatkas','Tizi Gheniff'] },
+  { code: '16', nom: 'Alger',           communes: ['Alger Centre','Bab El Oued','Hussein Dey','El Harrach','Ain Taya','Rouiba','Reghaia','Dar El Beida'] },
+  { code: '17', nom: 'Djelfa',          communes: ['Djelfa','Messaad','Ain Oussara','Birine','Hassi Bahbah'] },
+  { code: '18', nom: 'Jijel',           communes: ['Jijel','El Milia','Taher','Ziama Mansouriah','Chekfa'] },
+  { code: '19', nom: 'Sétif',           communes: ['Sétif','El Eulma','Ain El Kebira','Bougaa','Ain Azel','Bir El Arch','Guenzet','Salah Bey'] },
+  { code: '20', nom: 'Saida',           communes: ['Saida','Ain El Hadjar','Sidi Amar','Ouled Brahim'] },
+  { code: '21', nom: 'Skikda',          communes: ['Skikda','El Harrouch','Azzaba','Collo','Ain Zouit'] },
+  { code: '22', nom: 'Sidi Bel Abbès',  communes: ['Sidi Bel Abbès','Telagh','Ain El Berd','Tessala','Ben Badis'] },
+  { code: '23', nom: 'Annaba',          communes: ['Annaba','El Hadjar','Berrahal','Ain Berda','El Bouni'] },
+  { code: '24', nom: 'Guelma',          communes: ['Guelma','Bouchegouf','Ain Makhlouf','Oued Zenati'] },
+  { code: '25', nom: 'Constantine',     communes: ['Constantine','El Khroub','Ain Smara','Hamma Bouziane'] },
+  { code: '26', nom: 'Médéa',           communes: ['Médéa','Ksar El Boukhari','Berrouaghia','Ain Boucif','Beni Slimane'] },
+  { code: '27', nom: 'Mostaganem',      communes: ['Mostaganem','Ain Tedeles','Mesra','Sidi Ali','Ain Nouissy'] },
+  { code: '28', nom: "M'Sila",          communes: ["M'Sila",'Bou Saâda','Ain El Melh','Magra','Sidi Aissa'] },
+  { code: '29', nom: 'Mascara',         communes: ['Mascara','Sig','Mohammadia','Bouhanifia','Ain Fekan'] },
+  { code: '30', nom: 'Ouargla',         communes: ['Ouargla','Hassi Messaoud','Touggourt','Ain Beida','El Alia'] },
+  { code: '31', nom: 'Oran',            communes: ['Oran','Es Senia','Bir El Djir','Ain Turk','Arzew'] },
+  { code: '32', nom: 'El Bayadh',       communes: ['El Bayadh','El Abiodh Sidi Cheikh','Brezina','Boualem'] },
+  { code: '33', nom: 'Illizi',          communes: ['Illizi','Djanet','In Amenas'] },
+  { code: '34', nom: 'Bordj Bou Arreridj', communes: ['Bordj Bou Arreridj','Ras El Oued','El Anseur','Bordj Ghedir','Bir Kasdali','Djaafra'] },
+  { code: '35', nom: 'Boumerdès',       communes: ['Boumerdès','Khemis El Khechna','Bordj Menaiel','Naciria','Ain Taya'] },
+  { code: '36', nom: 'El Tarf',         communes: ['El Tarf','El Kala','Besbes','Ben Mehdi'] },
+  { code: '37', nom: 'Tindouf',         communes: ['Tindouf'] },
+  { code: '38', nom: 'Tissemsilt',      communes: ['Tissemsilt','Khemisti','Bordj Bounaama','Theniet El Had'] },
+  { code: '39', nom: 'El Oued',         communes: ['El Oued','Robbah','Guemar','Reguiba','Kouinine'] },
+  { code: '40', nom: 'Khenchela',       communes: ['Khenchela','Ain Touta','Baghai','El Hamma'] },
+  { code: '41', nom: 'Souk Ahras',      communes: ['Souk Ahras','Sedrata','Taoura','Ain Soltane'] },
+  { code: '42', nom: 'Tipaza',          communes: ['Tipaza','Hadjout','Cherchell','Kolea','Ain Tagourait'] },
+  { code: '43', nom: 'Mila',            communes: ['Mila','Chelghoum Laid','Ferdjioua','Ain Mlila','Oued Athmania'] },
+  { code: '44', nom: 'Ain Defla',       communes: ['Ain Defla','El Attaf','Khemis Miliana','Ain Torki','Djendel'] },
+  { code: '45', nom: 'Naâma',           communes: ['Naâma','Mecheria','Ain Sefra','Sfissifa'] },
+  { code: '46', nom: 'Ain Témouchent',  communes: ['Ain Témouchent','Ain El Arba','Hammam Bou Hadjar','Beni Saf'] },
+  { code: '47', nom: 'Ghardaïa',        communes: ['Ghardaïa','Berriane','Metlili','El Guerrara','Bounoura'] },
+  { code: '48', nom: 'Relizane',        communes: ['Relizane','Mazouna','Oued Rhiou','Ain Tarek','Sidi M\'hamed Ben Ali'] },
+  { code: '49', nom: 'Timimoun',        communes: ['Timimoun','Aougrout','Charouine','Deldoul'] },
+  { code: '50', nom: 'Bordj Badji Mokhtar', communes: ['Bordj Badji Mokhtar','Timiaouine'] },
+  { code: '51', nom: 'Ouled Djellal',   communes: ['Ouled Djellal','Sidi Khaled','Ras El Miad'] },
+  { code: '52', nom: 'Béni Abbès',      communes: ['Béni Abbès','Igli','Tabelbala'] },
+  { code: '53', nom: 'In Salah',        communes: ['In Salah','In Ghar','Foggaret Ezzaouia'] },
+  { code: '54', nom: 'In Guezzam',      communes: ['In Guezzam','Tinzaouatine'] },
+  { code: '55', nom: 'Touggourt',       communes: ['Touggourt','Megarine','Tebesbest','Nezla'] },
+  { code: '56', nom: 'Djanet',          communes: ['Djanet','Bordj El Haoues'] },
+  { code: '57', nom: "El M'Ghair",      communes: ["El M'Ghair",'Djamaa','Sidi Amrane'] },
+  { code: '58', nom: 'El Meniaa',       communes: ['El Meniaa','Hassi Gara'] },
+  // 11 Nouvelles wilayas (décret 2025)
+  { code: '59', nom: 'Aflou',           communes: ['Aflou','Ain Madhi','Tadjemout','Sidi Bouzid'] },
+  { code: '60', nom: 'Barika',          communes: ['Barika','Ain Touta','Menaa'] },
+  { code: '61', nom: 'Ksar Chellala',   communes: ['Ksar Chellala','Ain Dzariat','Sidi Slimane'] },
+  { code: '62', nom: 'Messaad',         communes: ['Messaad','Guettara','Douis'] },
+  { code: '63', nom: 'Ain Oussara',     communes: ['Ain Oussara','Hassi El Euch','Charef'] },
+  { code: '64', nom: 'Bou Saâda',       communes: ['Bou Saâda','Ain El Hadjel','Berhoum'] },
+  { code: '65', nom: 'El Abiodh Sidi Cheikh', communes: ['El Abiodh Sidi Cheikh','Brézina','El Bnoud'] },
+  { code: '66', nom: 'El Kantara',      communes: ['El Kantara','M\'Chounèche','Ain Touta'] },
+  { code: '67', nom: 'Bir El Ater',     communes: ['Bir El Ater','Negrine','Bir El Ater Centre'] },
+  { code: '68', nom: 'Ksar El Boukhari', communes: ['Ksar El Boukhari','Beni Slimane','Ain Boucif'] },
+  { code: '69', nom: 'El Aricha',       communes: ['El Aricha','Souk Tlata','Beni Boussaid'] },
+]
+
+// Wilayas pilotes KOURTI (Phase 1)
+export const wilayasPilotes = ['06', '15', '10', '19', '34']
+
+export const getCommunes = (codeWilaya) => {
+  const w = wilayas.find(w => w.code === codeWilaya)
+  return w ? w.communes : []
+}
+
+export default wilayas

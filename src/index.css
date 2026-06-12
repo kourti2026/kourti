@@ -1,0 +1,83 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  * {
+    -webkit-tap-highlight-color: transparent;
+    box-sizing: border-box;
+  }
+
+  html, body, #root {
+    height: 100%;
+    width: 100%;
+    overflow-x: hidden;
+    background-color: #FFF7ED;
+    color: #1a1a1a;
+  }
+
+  /* Police arabe — meilleure lisibilité sur mobile */
+  body[dir="rtl"] {
+    font-family: 'Noto Sans Arabic', 'Segoe UI', sans-serif;
+    font-size: 16px;
+    line-height: 1.7;
+    letter-spacing: 0.01em;
+    direction: rtl;
+  }
+
+  body[dir="ltr"] {
+    font-family: 'Inter', 'Segoe UI', system-ui, sans-serif;
+    font-size: 16px;
+    line-height: 1.5;
+    direction: ltr;
+  }
+
+  /* Titres arabes plus grands et plus lisibles */
+  body[dir="rtl"] h1, body[dir="rtl"] h2 {
+    font-size: 1.2em;
+    line-height: 1.5;
+  }
+
+  /* Inputs : direction correcte */
+  input[type="text"], input[type="email"], textarea {
+    direction: inherit;
+    text-align: inherit;
+  }
+
+  /* Inputs numériques toujours LTR pour les chiffres */
+  input[type="number"], input[inputmode="numeric"], input[inputmode="decimal"] {
+    direction: ltr;
+    text-align: center;
+  }
+}
+
+@layer components {
+  .btn-primary {
+    @apply w-full py-4 text-white text-lg font-semibold rounded-2xl
+           active:scale-95 transition-transform disabled:opacity-50 disabled:cursor-not-allowed;
+    background-color: #E85C0D;
+  }
+
+  .btn-secondary {
+    @apply w-full py-4 border-2 text-lg font-semibold rounded-2xl active:scale-95 transition-transform;
+    border-color: #E85C0D;
+    color: #E85C0D;
+  }
+
+  .input-field {
+    @apply w-full px-4 py-4 text-lg border-2 border-gray-200 rounded-2xl focus:outline-none bg-white;
+  }
+
+  .input-field:focus {
+    border-color: #E85C0D;
+  }
+
+  .card {
+    @apply bg-white rounded-2xl shadow-sm border border-gray-100 p-4;
+  }
+
+  .screen {
+    @apply min-h-screen flex flex-col px-4 py-6;
+    background-color: #f0fdf4;
+  }
+}
