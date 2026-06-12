@@ -1,6 +1,11 @@
 import { useEffect } from 'react'
 import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom'
 import { AuthProvider, useAuth } from './context/AuthContext'
+import AdminDashboard    from './pages/Admin/AdminDashboard'
+import AdminUtilisateurs from './pages/Admin/AdminUtilisateurs'
+import AdminAnnonces     from './pages/Admin/AdminAnnonces'
+import AdminCours        from './pages/Admin/AdminCours'
+import AdminAssistants   from './pages/Admin/AdminAssistants'
 import Splash               from './pages/Splash'
 import AuthPage             from './pages/Auth'
 import AccueilEleveur       from './pages/Eleveur/AccueilEleveur'
@@ -47,6 +52,15 @@ function PrivateRoute({ children }) {
   return children
 }
 
+function AdminRoute({ children, adminOnly = false }) {
+  const { firebaseUser, profile, loading } = useAuth()
+  if (loading) return <div className="min-h-screen bg-gray-900" />
+  if (!firebaseUser || !profile) return <Navigate to="/auth" replace />
+  if (!profile.admin_role) return <Navigate to="/" replace />
+  if (adminOnly && profile.admin_role !== 'admin') return <Navigate to="/admin" replace />
+  return children
+}
+
 function AppRoutes() {
   return (
     <Routes>
@@ -82,6 +96,13 @@ function AppRoutes() {
       <Route path="/profil/modifier" element={<PrivateRoute><ModifierProfil /></PrivateRoute>} />
       <Route path="/profil/:userId"  element={<PrivateRoute><ProfilPublic /></PrivateRoute>} />
       <Route path="/forum"           element={<PrivateRoute><Forum /></PrivateRoute>} />
+
+      {/* Admin */}
+      <Route path="/admin"              element={<AdminRoute><AdminDashboard /></AdminRoute>} />
+      <Route path="/admin/utilisateurs" element={<AdminRoute><AdminUtilisateurs /></AdminRoute>} />
+      <Route path="/admin/annonces"     element={<AdminRoute><AdminAnnonces /></AdminRoute>} />
+      <Route path="/admin/cours"        element={<AdminRoute><AdminCours /></AdminRoute>} />
+      <Route path="/admin/assistants"   element={<AdminRoute adminOnly><AdminAssistants /></AdminRoute>} />
 
       <Route path="*" element={<Navigate to="/" replace />} />
     </Routes>
